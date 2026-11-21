@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>國中輔導紀錄小幫手</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f6f3; --card:#ffffff; --ink:#1f2a2e; --muted:#5f6b6f; --line:#dde3df;
+  --pri:#2f6f62; --pri-ink:#ffffff; --pri-soft:#e3efeb; --acc:#c9772b; --acc-soft:#fbeee0;
+  --warn:#b4412f; --warn-soft:#fbe7e3; --ok:#3b7d3b; --r:12px;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#151a1b;--card:#1f2628;--ink:#e6ecea;--muted:#9aa7a9;--line:#334044;
+  --pri:#5fb3a1;--pri-ink:#0f1f1b;--pri-soft:#22352f;--acc:#e3a15d;--acc-soft:#3a2b1c;--warn:#ef8a78;--warn-soft:#3b221e;--ok:#7cc47c}
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Noto Sans TC",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;font-size:15px}
+header{background:var(--pri);color:var(--pri-ink);padding:14px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header h1{font-size:19px;margin:0;font-weight:700}
+header .sub{font-size:13px;opacity:.85}
+header .sp{flex:1}
+header button{background:rgba(255,255,255,.16);color:inherit;border:1px solid rgba(255,255,255,.3)}
+header button:hover{background:rgba(255,255,255,.28)}
+main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
+nav.tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+nav.tabs button{background:var(--card);border:1px solid var(--line);color:var(--muted);padding:9px 16px;border-radius:999px;font-weight:500}
+nav.tabs button.on{background:var(--pri);color:var(--pri-ink);border-color:var(--pri)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;margin-bottom:14px}
+.card h2{margin:0 0 12px;font-size:16px;display:flex;align-items:center;gap:8px}
+.num{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--pri);color:var(--pri-ink);font-size:13px;flex:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+label.f{display:block;font-size:13px;color:var(--muted);margin-bottom:4px;font-weight:500}
+input[type=text],input[type=date],input[type=number],input[type=password],select,textarea{
+  width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit}
+textarea{min-height:96px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--pri);outline-offset:-1px}
+button{font:inherit;cursor:pointer;border-radius:8px;padding:8px 14px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+button:hover{border-color:var(--pri)}
+button.pri{background:var(--pri);color:var(--pri-ink);border-color:var(--pri);font-weight:700}
+button.acc{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:700}
+button.sm{padding:4px 10px;font-size:13px}
+button:disabled{opacity:.5;cursor:not-allowed}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg label{border:1px solid var(--line);border-radius:999px;padding:6px 13px;cursor:pointer;font-size:14px;background:var(--bg);user-select:none}
+.seg input{display:none}
+.seg label:has(input:checked){background:var(--pri-soft);border-color:var(--pri);color:var(--pri);font-weight:700}
+.hint{font-size:12.5px;color:var(--muted);margin-top:4px}
+.cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.cats label{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer;background:var(--bg);font-size:14px}
+.cats label:has(input:checked){border-color:var(--pri);background:var(--pri-soft);font-weight:700}
+.tagbox{margin-top:12px;border:1px dashed var(--line);border-radius:10px;padding:10px 12px}
+.tagbox details{margin:4px 0}
+.tagbox summary{cursor:pointer;font-size:14px;font-weight:500;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 4px}
+.tag{font-size:13px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--card);cursor:pointer}
+.tag.on{background:var(--acc-soft);border-color:var(--acc);color:var(--acc);font-weight:700}
+.tag.risk::before{content:"⚠ ";}
+.picked{display:flex;flex-wrap:wrap;gap:6px;min-height:28px}
+.picked span{background:var(--acc-soft);color:var(--acc);border-radius:999px;padding:3px 10px;font-size:13px;cursor:pointer}
+.alert{background:var(--warn-soft);border:1px solid var(--warn);color:var(--warn);border-radius:10px;padding:10px 14px;margin-top:12px;font-size:14px}
+.alert b{display:block;margin-bottom:4px}
+.alert ul{margin:4px 0 0 18px;padding:0}
+.ta-wrap{position:relative}
+.mic{position:absolute;right:8px;bottom:8px;padding:3px 9px;font-size:13px}
+.mic.live{background:var(--warn);color:#fff;border-color:var(--warn)}
+.examples{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.out{margin-top:6px}
+.out h3{font-size:15px;margin:10px 0 6px;display:flex;justify-content:space-between;align-items:center}
+.out h3 small{color:var(--muted);font-weight:400}
+.out textarea{min-height:170px;background:var(--card)}
+.over{color:var(--warn)!important;font-weight:700!important}
+.checklist{background:var(--pri-soft);border-radius:10px;padding:10px 14px;font-size:13.5px;margin-top:12px}
+.checklist ul{margin:4px 0 0 18px;padding:0}
+.spinner{display:none;align-items:center;gap:8px;color:var(--pri);font-weight:500;margin-top:10px}
+.spinner.on{display:flex}
+.spinner i{width:16px;height:16px;border:3px solid var(--pri-soft);border-top-color:var(--pri);border-radius:50%;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;font-size:12.5px;max-height:320px;overflow:auto}
+.hidden{display:none!important}
+.engine{font-size:12.5px;padding:3px 10px;border-radius:999px;background:var(--pri-soft);color:var(--pri);font-weight:500}
+/* batch */
+.seats{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px}
+.seat{padding:8px 4px;text-align:center;border-radius:8px;border:1px solid var(--line);background:var(--bg);font-size:13px;cursor:pointer;line-height:1.3}
+.seat small{display:block;color:var(--muted);font-size:11px}
+.seat.sel{border-color:var(--pri);background:var(--pri-soft)}
+.seat.done{background:var(--acc-soft);border-color:var(--acc)}
+.seat.gen{background:#dff0df;border-color:var(--ok)}
+.seat.cur{outline:3px solid var(--pri);outline-offset:1px}
+.bgroup{border-radius:10px;padding:10px 12px;margin-top:10px}
+.bgroup.good{background:#e8f4ea}.bgroup.bad{background:var(--acc-soft)}.bgroup.act{background:var(--pri-soft)}
+@media (prefers-color-scheme:dark){.bgroup.good{background:#1f3324}}
+.bgroup>b{font-size:14px}
+.bsub{font-size:12.5px;color:var(--muted);font-weight:500;margin:8px 0 2px}
+.bgroup .tags{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:6px;margin:4px 0 6px}
+.bgroup .tag{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:40px;border-radius:10px;padding:5px 8px;line-height:1.3}
+.bgroup .tag.risk::before{content:none}
+.bgroup>.bhead{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(0,0,0,.06);padding-bottom:6px}
+.bgroup>.bhead b{font-size:14.5px}
+.bsub{text-align:left}
+.legend{display:flex;gap:6px;align-items:center}
+.legend .seat{padding:2px 10px;cursor:default;font-size:12px}
+.bmeta{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:13px;color:var(--muted);margin-top:4px}
+.bmeta b{color:var(--ink);font-weight:500}
+.bactions{display:flex;justify-content:center;gap:10px;margin-top:12px}
+.bwarn{margin-top:6px;font-size:12.5px;color:var(--warn);background:var(--warn-soft);border-radius:6px;padding:4px 8px}
+.tag small{display:block;font-size:10.5px;line-height:1.2;opacity:.8;font-weight:400;text-align:center}
+.bgroup.good .tag.on{background:#d3ecd7;border-color:var(--ok);color:var(--ok)}
+.bgroup.act .tag.on{background:var(--pri);border-color:var(--pri);color:var(--pri-ink)}
+.bcount{font-size:12px;color:var(--muted);font-weight:400}
+.bitem{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:var(--bg)}
+.bitem .t{font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap}
+.bitem textarea{min-height:90px;margin-top:6px;background:var(--card)}
+/* records */
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:500;font-size:13px}
+.bar{height:10px;background:var(--pri);border-radius:5px;min-width:3px}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:14px}
+.stat{background:var(--bg);border-radius:10px;padding:10px 12px}
+.stat b{display:block;font-size:24px;color:var(--pri)}
+.stat span{font-size:12.5px;color:var(--muted)}
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-start;justify-content:center;padding:40px 14px;z-index:50;overflow:auto}
+.modal .box{background:var(--card);border-radius:14px;max-width:760px;width:100%;padding:20px 22px;position:relative}
+.modal .x{position:absolute;right:12px;top:10px;border:none;font-size:20px;background:none}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 18px;border-radius:999px;font-size:14px;z-index:60;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+@media print{header,nav.tabs,footer,#tab-single>.card:not(#resultCard),#resultCard .row,#resultCard details,#resultCard .checklist,#resultCard h2,.out h3 button,.out h3 small{display:none!important}
+  body{background:#fff}.card{border:none;padding:0}.out textarea{border:none;min-height:0;height:auto;overflow:visible}}
+footer{text-align:center;font-size:12.5px;color:var(--muted);padding:20px}
+.helpsec h3{font-size:15px;margin:16px 0 6px}
+.helpsec p,.helpsec li{font-size:14px}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>🏫 國中輔導紀錄小幫手</h1>
+    <div class="sub">把口語描述整理成正式的輔導紀錄 · 七～九年級版</div>
+  </div>
+  <div class="sp"></div>
+  <button onclick="openModal('bookModal')">📚 紀錄本</button>
+  <button onclick="openModal('setModal')">⚙️ 設定</button>
+</header>
+
+<main>
+<nav class="tabs">
+  <button class="on" data-tab="single">✍️ 個別輔導</button>
+  <button data-tab="batch">🗂️ 批次補登（座號制）</button>
+  <button data-tab="help">❓ 使用說明</button>
+</nav>
+
+<!-- ============ 個別輔導 ============ -->
+<section id="tab-single">
+  <div class="card">
+    <h2><span class="num">1</span>學生資料</h2>
+    <div class="grid">
+      <div>
+        <label class="f">學生姓名（不會送出）</label>
+        <div class="row" style="flex-wrap:nowrap">
+          <input type="text" id="sName" placeholder="例：王小明" list="rosterList">
+          <button class="sm" onclick="openModal('rosterModal')" title="班級名冊">👥 名冊</button>
+        </div>
+        <datalist id="rosterList"></datalist>
+      </div>
+      <div>
+        <label class="f">年級</label>
+        <select id="sGrade"><option>七年級</option><option>八年級</option><option>九年級</option></select>
+      </div>
+      <div>
+        <label class="f">日期</label>
+        <input type="date" id="sDate">
+      </div>
+      <div>
+        <label class="f">紀錄者身分</label>
+        <select id="sRole"><option>導師</option><option>專任輔導教師</option><option>輔導組長</option><option>科任教師</option><option>生教組／學務處</option><option>專業輔導人員</option></select>
+      </div>
+    </div>
+    <div style="margin-top:12px">
+      <label class="f">其他相關人物（選填，用逗號分隔）</label>
+      <input type="text" id="sOthers" placeholder="例：李大華, 陳同學, 張老師">
+      <div class="hint">送給 AI 前會自動換成乙生、丙生…等代號；師長請寫職稱即可（如「數學老師」）。</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">2</span>訪談對象、方式與層級</h2>
+    <label class="f">訪談對象</label>
+    <div class="seg" id="sTarget">
+      <label><input type="radio" name="tgt" value="學生個別晤談" checked>只和學生談</label>
+      <label><input type="radio" name="tgt" value="聯繫家長">聯繫家長</label>
+      <label><input type="radio" name="tgt" value="學生與家長">學生＋家長</label>
+      <label><input type="radio" name="tgt" value="多名學生（團體／衝突雙方）">多名學生</label>
+      <label><input type="radio" name="tgt" value="與校內教師／輔導室／學務處協調">校內師長協調</label>
+      <label><input type="radio" name="tgt" value="與社工／心理師等校外資源聯繫">校外資源</label>
+    </div>
+    <div class="grid" style="margin-top:12px">
+      <div>
+        <label class="f">訪談方式</label>
+        <select id="sMethod">
+          <option>個別晤談</option><option>電話聯繫</option><option>家長到校面談</option><option>家庭訪問</option>
+          <option>聯絡簿／LINE 訊息</option><option>團體晤談</option><option>課堂觀察</option><option>轉介輔導室</option><option>個案會議</option>
+        </select>
+      </div>
+      <div>
+        <label class="f">晤談地點（選填）</label>
+        <input type="text" id="sPlace" placeholder="例：輔導室、教室外走廊">
+      </div>
+      <div>
+        <label class="f">三級輔導層級</label>
+        <select id="sTier">
+          <option value="">（不註明）</option>
+          <option>發展性輔導（一級，導師／全體學生）</option>
+          <option>介入性輔導（二級，輔導教師）</option>
+          <option>處遇性輔導（三級，專業輔導人員／跨單位）</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">3</span>發生了什麼狀況</h2>
+    <label class="f">輔導類別（可複選）</label>
+    <div class="cats" id="catBox"></div>
+    <div class="tagbox">
+      <div class="row" style="justify-content:space-between">
+        <b style="font-size:14px">🏷️ 常見狀況標籤庫 <span class="hint">點一下加入，可跨類別複選；⚠ 為可能需通報或啟動危機處理的狀況</span></b>
+      </div>
+      <div id="tagLib"></div>
+      <label class="f" style="margin-top:8px">已選標籤（點一下移除）</label>
+      <div class="picked" id="pickedTags"><span class="hint" style="background:none;color:var(--muted)">尚未選擇</span></div>
+    </div>
+    <div id="alertBox"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">4</span>事件經過與處理</h2>
+    <label class="f">事件經過（必填）—— 用說的或隨手寫都可以</label>
+    <div class="ta-wrap">
+      <textarea id="sEvent" placeholder="例：小明這週三天沒交數學作業，上課常趴睡，問他說晚上打遊戲到兩點，說反正會考也考不好……"></textarea>
+      <button class="sm mic hidden" data-for="sEvent">🎤 語音輸入</button>
+    </div>
+    <div class="examples" id="exBox"><span class="hint">快速範例：</span></div>
+    <div class="grid" style="margin-top:12px">
+      <div>
+        <label class="f">老師的處理與引導（選填）</label>
+        <div class="ta-wrap">
+          <textarea id="sAction" placeholder="例：先肯定他願意說實話，一起訂每天 11 點收手機，聯繫家長協助…"></textarea>
+          <button class="sm mic hidden" data-for="sAction">🎤</button>
+        </div>
+      </div>
+      <div>
+        <label class="f">學生的回應與後續（選填）</label>
+        <div class="ta-wrap">
+          <textarea id="sResp" placeholder="例：學生同意試一週，下週一再晤談追蹤…"></textarea>
+          <button class="sm mic hidden" data-for="sResp">🎤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">5</span>輸出設定與產生</h2>
+    <div class="grid">
+      <div><label class="f">篇幅</label>
+        <div class="seg"><label><input type="radio" name="len" value="精簡">精簡</label><label><input type="radio" name="len" value="標準" checked>標準</label><label><input type="radio" name="len" value="詳細">詳細</label></div></div>
+      <div><label class="f">語氣</label>
+        <div class="seg"><label><input type="radio" name="tone" value="客觀中性" checked>客觀中性</label><label><input type="radio" name="tone" value="溫暖正向">溫暖正向</label></div></div>
+      <div><label class="f">姓名</label>
+        <div class="seg"><label><input type="radio" name="nm" value="real" checked>顯示真實姓名</label><label><input type="radio" name="nm" value="code">全部用代號</label></div></div>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <button class="pri" id="btnGen">✨ AI 整理成輔導紀錄</button>
+      <button id="btnCopyPrompt">📋 複製提示詞（貼到 Gemini／ChatGPT）</button>
+      <button id="btnDemo">👀 先看範例</button>
+    </div>
+    <div class="spinner" id="spin"><i></i>AI 正在撰寫紀錄…</div>
+    <details style="margin-top:12px">
+      <summary class="hint" style="cursor:pointer">👀 查看實際送給 AI 的內容（已去識別化）</summary>
+      <pre class="preview" id="promptPreview"></pre>
+    </details>
+  </div>
+
+  <div class="card" id="resultCard">
+    <h2><span class="num">6</span>輔導紀錄結果</h2>
+    <div class="out">
+      <h3><span id="f1Label">輔導內容重點</span><span class="row"><small id="f1Count">0 字</small><button class="sm" onclick="copyField('out1')">複製</button></span></h3>
+      <textarea id="out1" placeholder="AI 產生的內容會出現在這裡，也可以直接修改。"></textarea>
+      <h3><span id="f2Label">聯繫內容</span><span class="row"><small id="f2Count">0 字</small><button class="sm" onclick="copyField('out2')">複製</button></span></h3>
+      <textarea id="out2"></textarea>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <span class="hint">一鍵改寫：</span>
+      <button class="sm rw" data-rw="更溫和">💗 更溫和</button>
+      <button class="sm rw" data-rw="更客觀">⚖️ 更客觀</button>
+      <button class="sm rw" data-rw="更精簡">✂️ 更精簡</button>
+      <button class="sm rw" data-rw="更完整">📝 更完整</button>
+      <button class="sm" id="btnUndo">↩ 復原</button>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button onclick="copyAll()">📋 複製全部</button>
+      <button id="btnRegen">🔄 重新產生</button>
+      <button class="acc" id="btnSave">💾 存入紀錄本</button>
+      <button id="btnPrint" class="hidden" onclick="try{window.print()}catch(e){}">🖨️ 列印</button>
+    </div>
+    <details style="margin-top:14px">
+      <summary style="cursor:pointer;font-weight:500">📥 用 Gemini／ChatGPT 網頁版產生的？把回覆貼回來自動拆段</summary>
+      <textarea id="pasteBack" placeholder="把 AI 的完整回覆貼在這裡" style="margin-top:8px"></textarea>
+      <button class="sm" style="margin-top:6px" id="btnSplit">自動拆成兩段</button>
+    </details>
+    <div class="checklist">
+      <b>✅ 登錄前檢查</b>
+      <ul>
+        <li>核對事實：日期、人物、次數是否與實際相符，沒有多出實際沒發生的細節。</li>
+        <li>避免標籤化或診斷性字眼（如「過動」「憂鬱症」「問題學生」），改用具體行為描述。</li>
+        <li>確認有寫出後續做法、追蹤時間與觀察重點。</li>
+        <li>涉及霸凌、性平、家暴、自傷等事件，確認已依校內流程通報並記錄通報時間。</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 批次補登 ============ -->
+<section id="tab-batch" class="hidden">
+  <div class="card">
+    <h2>🗂️ 批次補登（座號制，一次最多 10 位）</h2>
+    <p class="hint" style="margin-top:0">點座號開始填寫，有勾選或填寫必要提及才算「已完成」；送給 AI 的只有座號；設定名冊後畫面會顯示姓名，但姓名不會送出。適合例行性的導師晤談、期中關懷等補登。</p>
+    <div class="grid">
+      <div><label class="f">日期</label><input type="date" id="bDate"></div>
+      <div><label class="f">年級</label><select id="bGrade"><option>七年級</option><option>八年級</option><option>九年級</option></select></div>
+      <div><label class="f">訪談對象</label><select id="bTarget"><option value="學生">學生（個別訪談）</option><option value="家長">聯繫家長</option><option value="學生與家長">學生＋家長</option></select>
+        <div class="hint" id="bTargetHint"></div></div>
+      <div><label class="f">訪談方式</label><select id="bMethod"><option>個別晤談</option><option>電話聯繫</option><option>聯絡簿／LINE 訊息</option><option>家長到校面談</option></select></div>
+      <div><label class="f">篇幅</label><select id="bLen"><option>精簡</option><option selected>標準</option><option>詳細</option></select></div>
+      <div><label class="f">語氣</label><select id="bTone"><option>客觀中性</option><option>溫暖正向</option></select></div>
+      <div><label class="f">姓名</label><select id="bName"><option value="real">顯示名冊姓名</option><option value="code">全部用代號</option></select></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="row" style="justify-content:space-between">
+      <h2 style="margin:0">選擇座號</h2>
+      <span class="legend">
+        <span class="seat cur">編輯中</span>
+        <span class="seat done">已完成</span>
+        <span class="seat gen">已產生</span>
+      </span>
+    </div>
+    <div class="seats" id="seatGrid" style="margin-top:10px"></div>
+    <div id="bEditor" class="hidden" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px">
+      <b id="bEditTitle"></b>
+      <div id="bTags"></div>
+      <label class="f" style="margin-top:12px">📌 必要提及（有事件要寫時填這裡；內容一定會寫進紀錄，日期照原樣保留）</label>
+      <textarea id="bNote" style="min-height:80px" placeholder="例：11/18 第三節數學課趴睡，叫醒後又趴下兩次；11/19 數學作業未交，說放在家裡忘了帶。&#10;（請寫看到的具體行為，不要寫姓名，可用「同學」代稱）"></textarea>
+      <div class="hint">AI 會用中性、具體的詞彙詳細描述學生行為，並把你寫的日期一字不改放進紀錄。</div>
+      <div class="bactions">
+        <button class="pri" id="bNext">✓ 這位好了，下一位 →</button>
+        <button id="bRemove">移除這位</button>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="row">
+      <button class="pri" id="bGen">▶️ 開始批次產生</button>
+      <button id="bCopy">📋 複製提示詞</button>
+      <span class="hint" id="bStatus">尚未開始</span>
+    </div>
+    <div class="spinner" id="bSpin"><i></i>AI 正在撰寫…</div>
+    <details style="margin-top:12px">
+      <summary style="cursor:pointer;font-weight:500">📥 用網頁版 AI 產生的？貼回來依座號拆開</summary>
+      <textarea id="bPaste" style="margin-top:8px"></textarea>
+      <button class="sm" style="margin-top:6px" id="bSplit">依座號拆開</button>
+    </details>
+    <div id="bResults" style="margin-top:12px"></div>
+    <div class="row hidden" id="bResBtns" style="margin-top:8px">
+      <button class="acc" id="bSaveAll">💾 全部存入紀錄本</button>
+      <button id="bClear">清空這批</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 使用說明 ============ -->
+<section id="tab-help" class="hidden">
+  <div class="card helpsec">
+    <h2>❓ 使用說明</h2>
+    <h3>三步驟完成一筆紀錄</h3>
+    <ol>
+      <li><b>填寫情境</b>：選學生、類別與標籤，用口語寫下（或用說的）發生什麼事。</li>
+      <li><b>AI 產生</b>：按「✨ AI 整理成輔導紀錄」，自動寫成「輔導內容重點」與「聯繫內容」兩段。</li>
+      <li><b>檢查後複製</b>：核對事實、微調用詞，再複製貼到校務系統（如輔導紀錄或學生輔導資料 B 表）。</li>
+    </ol>
+    <h3>和國小版不一樣的地方</h3>
+    <ul>
+      <li>年級為七～九年級；類別與標籤改為國中常見議題：會考壓力、生涯／適性入學、網路與 3C、情感交往、電子煙、拒學等。</li>
+      <li>可註明<b>三級輔導層級</b>與<b>紀錄者身分</b>（導師、專輔教師、生教組…），AI 會依身分調整用語。</li>
+      <li><b>通報提醒</b>：選到霸凌、性平、家暴／疏忽、自傷、藥物、中輟等標籤時，會跳出提醒。這只是提醒，實際仍請依學校流程並與輔導室、學務處確認。</li>
+      <li>AI 撰寫時會用尊重青少年自主的語言，並記下學生自己的想法與承諾。</li>
+    </ul>
+    <h3>隱私保護</h3>
+    <ul>
+      <li>學生姓名、相關人物、名冊姓名在送出前都會換成「甲生、乙生…」，電話與身分證字號會被遮蔽；AI 寫完後才在你的瀏覽器換回真名。</li>
+      <li>紀錄本、名冊、草稿只存在這台電腦的瀏覽器；換電腦或清除瀏覽資料就會不見，請定期「備份成檔案」。</li>
+      <li>公用電腦請在設定中開啟「公用電腦模式」。</li>
+    </ul>
+    <h3>AI 來源</h3>
+    <ul>
+      <li>在 Claude 裡開啟本頁時，直接使用 Claude 撰寫，不需要金鑰（第一次會詢問是否同意）。</li>
+      <li>把本頁 HTML 放到自己的網站（例如 GitHub Pages）時，可在設定填入 Gemini API 金鑰。</li>
+      <li>都沒有的話：按「📋 複製提示詞」貼到 Gemini 或 ChatGPT 網頁版，再把回覆貼回來自動拆段。</li>
+    </ul>
+  </div>
+</section>
+</main>
+
+<footer>國中輔導紀錄小幫手 · 改編自阿凱老師的國小版「輔導紀錄小幫手」</footer>
+
+<!-- ============ Modals ============ -->
+<div class="modal hidden" id="setModal"><div class="box">
+  <button class="x" onclick="closeModal('setModal')">×</button>
+  <h2 style="margin-top:0">⚙️ 設定</h2>
+  <div class="card" style="background:var(--bg)">
+    <h2>學校紀錄格式</h2>
+    <div class="grid">
+      <div><label class="f">第一欄名稱</label><input type="text" id="cfgF1"></div>
+      <div><label class="f">字數上限（空白＝不限）</label><input type="number" id="cfgL1" min="0"></div>
+      <div><label class="f">第二欄名稱</label><input type="text" id="cfgF2"></div>
+      <div><label class="f">字數上限（空白＝不限）</label><input type="number" id="cfgL2" min="0"></div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button class="sm pri" id="cfgSave">儲存格式</button>
+      <button class="sm" id="cfgReset">恢復預設（輔導內容重點／聯繫內容，不限字數）</button>
+    </div>
+  </div>
+  <div class="card" style="background:var(--bg)" id="geminiCard">
+    <h2>Gemini API 金鑰（自架網站時使用）</h2>
+    <p class="hint" style="margin-top:0" id="claudeNote"></p>
+    <div class="row" style="flex-wrap:nowrap"><input type="password" id="cfgKey" placeholder="AIza…"><button class="sm" onclick="const k=$('#cfgKey');k.type=k.type==='password'?'text':'password'">顯示</button></div>
+    <div class="grid" style="margin-top:8px">
+      <div><label class="f">模型</label><input type="text" id="cfgModel" value="gemini-2.5-flash"></div>
+    </div>
+    <label class="row" style="margin-top:8px;font-size:14px"><input type="checkbox" id="cfgRemember">記住金鑰（公用電腦請不要勾選，關閉分頁就會忘記）</label>
+    <div class="row" style="margin-top:8px">
+      <button class="sm pri" id="cfgKeySave">測試並儲存</button>
+      <button class="sm" id="cfgKeyClear">清除金鑰</button>
+      <span class="hint" id="cfgKeyMsg"></span>
+    </div>
+  </div>
+  <div class="card" style="background:var(--bg)">
+    <h2>公用電腦模式</h2>
+    <label class="row" style="font-size:14px"><input type="checkbox" id="cfgPublic">開啟：關閉分頁後自動清除草稿、紀錄本與名冊，且不記住金鑰</label>
+  </div>
+</div></div>
+
+<div class="modal hidden" id="rosterModal"><div class="box">
+  <button class="x" onclick="closeModal('rosterModal')">×</button>
+  <h2 style="margin-top:0">👥 班級名冊</h2>
+  <p class="hint">每行一位，格式「座號 姓名」，例如「5 王小明」。名冊只存在本機，不會送給 AI。</p>
+  <textarea id="rosterText" style="min-height:240px" placeholder="1 王小明&#10;2 李大華&#10;3 陳美玲"></textarea>
+  <div class="row" style="margin-top:8px">
+    <button class="pri" id="rosterSave">儲存名冊</button>
+    <button id="rosterClear">清空</button>
+  </div>
+</div></div>
+
+<div class="modal hidden" id="bookModal"><div class="box" style="max-width:920px">
+  <button class="x" onclick="closeModal('bookModal')">×</button>
+  <h2 style="margin-top:0">📚 紀錄本</h2>
+  <div class="row">
+    <button class="sm" id="bkBackup">💾 備份成檔案</button>
+    <label class="sm" style="border:1px solid var(--line);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:13px">📂 從檔案還原<input type="file" id="bkRestore" accept=".json" class="hidden"></label>
+    <button class="sm" id="bkCsv">⬇️ 匯出 Excel（CSV）</button>
+    <button class="sm" id="bkClearAll" style="color:var(--warn)">全部清除</button>
+  </div>
+  <nav class="tabs" style="margin-top:12px">
+    <button class="on" data-bk="list">📋 紀錄列表</button>
+    <button data-bk="stat">📊 學期統計</button>
+  </nav>
+  <div class="row" style="margin-bottom:10px">
+    <select id="bkStu" style="width:auto"><option value="">全部學生</option></select>
+    <span class="hint">從</span><input type="date" id="bkFrom" style="width:auto">
+    <span class="hint">到</span><input type="date" id="bkTo" style="width:auto">
+  </div>
+  <div id="bkList"></div>
+  <div id="bkStat" class="hidden"></div>
+</div></div>
+
+<div class="modal hidden" id="confirmModal"><div class="box" style="max-width:420px">
+  <p id="confirmMsg" style="margin-top:0"></p>
+  <div class="row" style="justify-content:flex-end"><button id="confirmNo">取消</button><button class="pri" id="confirmYes" style="background:var(--warn);border-color:var(--warn)">確定</button></div>
+</div></div>
+
+<div class="modal hidden" id="welcomeModal"><div class="box" style="max-width:520px">
+  <h2 style="margin-top:0">👋 歡迎使用國中輔導紀錄小幫手</h2>
+  <ol>
+    <li><b>填寫情境</b>：選學生、類別，用口語寫下發生什麼事。</li>
+    <li><b>AI 產生</b>：自動整理成「輔導內容重點」與「聯繫內容」。</li>
+    <li><b>檢查後複製</b>：核對事實後貼到校務系統。</li>
+  </ol>
+  <p class="hint">學生姓名送出前會換成代號；所有紀錄只存在你這台電腦的瀏覽器。</p>
+  <button class="pri" onclick="closeModal('welcomeModal');store.set('welcomed',1)">開始使用</button>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= 基本工具 ================= */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const PFX = 'jhc_';
+const store = {
+  area(){ return (this.get('publicMode', false, localStorage)) ? sessionStorage : localStorage; },
+  get(k, d = null, area){ try{ const v = (area || this.area()).getItem(PFX + k); return v == null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v, area){ try{ (area || this.area()).setItem(PFX + k, JSON.stringify(v)); }catch(e){} },
+  del(k, area){ try{ (area || this.area()).removeItem(PFX + k); }catch(e){} }
+};
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('on'), 2200); }
+async function copyText(txt){
+  try{ await navigator.clipboard.writeText(txt); toast('已複製'); }
+  catch(e){
+    const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select();
+    let ok = false; try{ ok = document.execCommand('copy'); }catch(_){}
+    ta.remove(); toast(ok ? '已複製' : '無法自動複製，請手動選取複製');
+  }
+}
+function openModal(id){ $('#' + id).classList.remove('hidden'); if(id === 'bookModal') renderBook(); if(id === 'rosterModal') $('#rosterText').value = rosterToText(); if(id === 'setModal') loadSettingsUI(); }
+function closeModal(id){ $('#' + id).classList.add('hidden'); }
+$$('.modal').forEach(m => m.addEventListener('click', e => { if(e.target === m && m.id !== 'welcomeModal') m.classList.add('hidden'); }));
+function askConfirm(msg){
+  return new Promise(res => {
+    $('#confirmMsg').textContent = msg; openModal('confirmModal');
+    $('#confirmYes').onclick = () => { closeModal('confirmModal'); res(true); };
+    $('#confirmNo').onclick = () => { closeModal('confirmModal'); res(false); };
+  });
+}
+const today = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,10); };
+
+/* ================= 國中版資料 ================= */
+const CATS = [
+  {id:'learn', name:'學習適應', icon:'📘', tags:['上課不專心／趴睡','作業缺交','成績明顯下滑','學習動機低落','考試焦慮','會考壓力','補習負擔過重','偏科嚴重','學習方法待調整','經常忘帶作業或用品','字跡潦草','作業敷衍／用猜的','抄寫他人作業']},
+  {id:'career', name:'生涯發展', icon:'🧭', tags:['升學方向迷惘','與家長志向不同','技藝教育／技職探索','適性入學選填','對未來沒有想法','興趣與能力落差','會考後進路規劃']},
+  {id:'peer', name:'人際關係', icon:'🤝', tags:['同儕衝突','人際互動關係差','說話不經思考易引起反感','被排擠孤立','小團體紛爭','社交退縮','言語衝突／嘲笑','疑似霸凌（受害）','疑似霸凌（行為人）']},
+  {id:'emo', name:'情緒與心理', icon:'💭', tags:['情緒起伏大','焦慮緊張','持續低落','易怒衝動','睡眠問題','自我價值感低','身體不適（疑心因性）','哭泣']},
+  {id:'family', name:'家庭議題', icon:'🏠', tags:['親子衝突','家長管教方式','父母離異／分居','隔代教養','經濟困難','家庭變故（喪親等）','手足問題','疑似家庭暴力','疑似疏忽照顧']},
+  {id:'behave', name:'行為議題', icon:'📏', tags:['違反校規','遲到早退','曠課','說謊','偷竊','抽菸／電子煙','破壞公物','肢體衝突','深夜未歸','服儀問題']},
+  {id:'net', name:'網路與3C', icon:'📱', tags:['沉迷手機／遊戲','深夜使用3C','遊戲儲值消費','網路交友','網路霸凌','私密影像外流','網路詐騙／借貸']},
+  {id:'gender', name:'情感與性別', icon:'💗', tags:['交往議題','分手困擾','身體界線','性別認同','性別刻板印象困擾','疑似性平事件']},
+  {id:'attend', name:'出缺席與拒學', icon:'🗓️', tags:['拒學／懼學','長期請假','經常請病假','中輟之虞','復學適應']},
+  {id:'crisis', name:'危機議題', icon:'🚨', tags:['自傷行為','自殺意念','物質使用（藥物）','離家出走','疑似幫派／不當組織接觸','高關懷個案追蹤']},
+  {id:'special', name:'特殊需求', icon:'🌱', tags:['特教學生','疑似特教需求','新住民子女適應','原住民學生適應','轉學適應','慢性疾病／身體狀況','弱勢家庭資源連結']},
+  {id:'positive', name:'正向表現', icon:'🌟', tags:['明顯進步','主動幫助同學','能幫助弱勢同學','友善合作','願意主動協助班務','擔任幹部表現佳','作業準時繳交','情緒調節進步','人際互動改善','比賽或才藝表現優異']}
+];
+// 通報提醒（僅提醒，實際以學校流程與最新法規為準）
+const ALERTS = [
+  {tags:['疑似霸凌（受害）','疑似霸凌（行為人）','網路霸凌'], title:'疑似校園霸凌', text:'依校園霸凌防制相關規定，知悉後應依校內流程通報學務處並進行校安通報，啟動調查與輔導。'},
+  {tags:['疑似性平事件','私密影像外流','身體界線'], title:'疑似性別事件／兒少性剝削', text:'性平事件依法應於知悉後 24 小時內通報；涉及兒少私密影像者另涉兒少性剝削通報。請立即告知學務處與輔導室，勿自行調查或要求學生重複陳述細節。'},
+  {tags:['疑似家庭暴力','疑似疏忽照顧'], title:'疑似家暴／兒少保護', text:'依兒少權益相關法規，教育人員知悉後應於 24 小時內向主管機關（社政）通報，並進行校安通報。'},
+  {tags:['自傷行為','自殺意念'], title:'自傷／自殺危機', text:'請立即確保學生安全、不讓學生獨處，通知輔導室啟動危機處理與自傷三級預防，聯繫家長並依規定校安通報。'},
+  {tags:['物質使用（藥物）'], title:'疑似藥物濫用', text:'請依校園學生藥物濫用防制流程通報學務處，並轉介輔導（如春暉小組）。'},
+  {tags:['中輟之虞','曠課','離家出走'], title:'中輟／行蹤不明', text:'學生未經請假連續未到校達 3 日，應進行中輟通報；離家出走請立即聯繫家長並協尋。'},
+  {tags:['疑似幫派／不當組織接觸','網路詐騙／借貸'], title:'疑似幫派或詐騙集團接觸', text:'請告知學務處（生教組）並視情況聯繫警政與家長，留意學生人身安全。'}
+];
+const RISK_TAGS = new Set(ALERTS.flatMap(a => a.tags));
+const EXAMPLES = [
+  {label:'會考壓力', cats:['learn','emo'], tags:['會考壓力','睡眠問題'], text:'小明最近模擬考成績退步，上課常發呆。下課找他聊，他說每天補習到十點，回家還要寫題本，常常一兩點才睡，覺得怎麼念都考不好，爸媽一直拿他跟表哥比。'},
+  {label:'電子煙', cats:['behave'], tags:['抽菸／電子煙','違反校規'], text:'生教組在廁所發現小明和另一位同學持有電子煙，小明說是校外朋友給的，抽了大概兩個禮拜，覺得大家都在抽沒什麼。'},
+  {label:'沉迷手遊', cats:['net','learn'], tags:['沉迷手機／遊戲','深夜使用3C','作業缺交'], text:'小明這週有三天沒交數學作業，上課常趴睡。問他說晚上打手遊打到兩三點，因為跟網友組隊不能先下線，說反正會考也考不好。'},
+  {label:'同儕排擠', cats:['peer'], tags:['被排擠孤立','小團體紛爭'], text:'小明的媽媽打電話說小明最近不想上學，說班上有兩位同學在 IG 限動影射他，分組都沒人要跟他一組。'},
+  {label:'生涯迷惘', cats:['career'], tags:['升學方向迷惘','與家長志向不同'], text:'九年級生涯晤談，小明很喜歡修車，想念高職汽修科，但爸爸堅持要他考普通高中，兩人為此吵架，小明說不知道要怎麼跟爸爸講。'},
+  {label:'交往分手', cats:['gender','emo'], tags:['分手困擾','情緒起伏大'], text:'小明這幾天上課常哭，同學說他和交往對象分手了。晤談時他說對方在群組說他壞話，覺得很丟臉，不想來學校。'}
+];
+// 批次補登選項：[標籤, 小字說明(選填)]
+const B_GOOD = [
+  {g:'學習表現', items:[['作業準時繳交'],['作業認真完整'],['上課專心認真'],['學習態度積極'],['主動發問求知'],['聰明伶俐','反應快、理解力佳'],['成績穩定進步'],['能自主學習'],['筆記整理完整'],['字跡工整'],['考前規劃複習']]},
+  {g:'人際與品格', items:[['人際互動良好'],['友善合作'],['能幫助弱勢同學'],['待人有禮貌'],['樂於分享'],['具同理心','能體諒他人感受'],['誠實負責'],['能接納不同意見'],['能化解同學間的衝突'],['尊重師長']]},
+  {g:'班級服務', items:[['願意主動協助班務'],['擔任幹部盡責'],['打掃工作認真'],['熱心參與班級活動'],['熱心公益服務'],['愛護公物與環境']]},
+  {g:'個人特質', items:[['個性開朗樂觀'],['做事細心'],['有責任感'],['自律守規'],['抗壓性佳'],['具領導能力'],['富有創意'],['有才藝或運動專長'],['情緒穩定'],['遇到困難不輕易放棄']]}
+];
+const B_BAD = [
+  {g:'作業', items:[['經常缺交','一週 3～5 次'],['偶爾缺交','一週 1～2 次'],['經常遲交'],['經常忘帶作業或用品'],['字跡潦草不工整'],['寫作業用猜的','未經思考隨意作答'],['作業敷衍草率'],['抄寫他人作業'],['訂正不確實'],['作業未完成就交出']]},
+  {g:'學習態度', items:[['上課不專心'],['上課趴睡','精神不濟'],['上課講話干擾秩序'],['上課使用手機'],['學習動機低落'],['成績明顯下滑'],['考試準備不足'],['遇到困難容易放棄'],['不願發問','不懂也不問'],['偏科嚴重']]},
+  {g:'人際關係', items:[['人際互動關係差'],['說話不經思考惹人厭','言語易引起他人反感'],['常與同學起衝突'],['愛捉弄同學'],['以言語嘲笑他人'],['被同學排擠孤立'],['不願與人合作分組'],['不尊重他人物品或界線'],['與異性相處分寸待加強'],['網路上言語不當']]},
+  {g:'個人特質', items:[['懶惰','做事需多次催促'],['被動','需要提醒才會行動'],['講不聽','屢勸不改'],['說了沒在記','交代事項常忘記'],['做事拖延'],['推卸責任'],['情緒易激動'],['缺乏耐心'],['自信心不足'],['容易分心'],['愛找藉口'],['我行我素']]},
+  {g:'常規行為', items:[['經常遲到'],['服儀不整'],['打掃工作不確實'],['不守秩序'],['頂撞師長'],['說謊'],['違規使用手機'],['抽菸／電子煙'],['破壞公物'],['未經請假未到校']]},
+  {g:'身心與生活', items:[['情緒低落'],['常喊身體不適'],['睡眠不足'],['沉迷手機或遊戲'],['家庭支持較少'],['會考／升學壓力大']]}
+];
+const B_ACT = [
+  {g:'晤談輔導', items:[['個別晤談關懷'],['傾聽了解原因'],['肯定與鼓勵'],['口頭提醒告誡'],['引導反省與自我覺察'],['共同訂定改善目標'],['簽訂行為契約'],['教導情緒調節方法'],['教導人際相處技巧']]},
+  {g:'學習協助', items:[['提供讀書方法'],['安排小老師協助'],['課後留校補寫作業'],['安排補救教學'],['調整座位'],['每日檢查聯絡簿與作業'],['提供生涯資訊']]},
+  {g:'親師聯繫', items:[['電話聯繫家長'],['聯絡簿告知家長'],['LINE 訊息聯繫家長'],['請家長到校面談'],['與科任教師協調']]},
+  {g:'轉介與通報', items:[['已通報學務處'],['已轉介輔導室'],['已進行校安通報'],['依校規處理','如愛校服務、警告'],['會同生教組處理']]},
+  {g:'後續追蹤', items:[['持續觀察追蹤'],['一週後再晤談'],['公開表揚'],['給予獎勵或嘉獎'],['安排擔任服務工作']]}
+];
+const B_SUB = {}; [...B_GOOD, ...B_BAD, ...B_ACT].forEach(gr => gr.items.forEach(([t, sub]) => { if(sub) B_SUB[t] = sub; }));
+const B_GOOD_SET = new Set(B_GOOD.flatMap(g => g.items.map(i => i[0])));
+const bLabel = t => B_SUB[t] ? `${t}（${B_SUB[t]}）` : t;
+
+/* ================= 狀態 ================= */
+const DEF_CFG = {f1:'輔導內容重點', l1:'', f2:'聯繫內容', l2:''};
+let cfg = Object.assign({}, DEF_CFG, store.get('cfg', {}));
+let picked = new Set();
+let undoStack = [];
+let lastMap = null;
+let engine = {kind:'none'}; // claude | gemini | none
+let sampleFn = null, dictation = null, downloads = null;
+let geminiKey = '';
+
+/* ================= UI 建立 ================= */
+function buildCats(){
+  $('#catBox').innerHTML = CATS.map(c => `<label><input type="checkbox" value="${c.id}"> ${c.icon} ${c.name}</label>`).join('');
+  $('#tagLib').innerHTML = CATS.map(c => `<details ${['learn','peer','emo'].includes(c.id)?'open':''}><summary>${c.icon} ${c.name}</summary><div class="tags">${
+    c.tags.map(t => `<span class="tag ${RISK_TAGS.has(t)?'risk':''}" data-tag="${esc(t)}" data-cat="${c.id}">${esc(t)}</span>`).join('')}</div></details>`).join('');
+  $('#tagLib').addEventListener('click', e => {
+    const el = e.target.closest('.tag'); if(!el) return;
+    const t = el.dataset.tag;
+    if(picked.has(t)) picked.delete(t); else { picked.add(t); const cb = $(`#catBox input[value="${el.dataset.cat}"]`); if(cb) cb.checked = true; }
+    renderPicked(); saveDraft();
+  });
+  $('#pickedTags').addEventListener('click', e => { if(e.target.dataset.t){ picked.delete(e.target.dataset.t); renderPicked(); saveDraft(); } });
+  $('#catBox').addEventListener('change', saveDraft);
+  $('#exBox').insertAdjacentHTML('beforeend', EXAMPLES.map((x,i) => `<button class="sm" data-ex="${i}">${x.label}</button>`).join(''));
+  $('#exBox').addEventListener('click', e => {
+    const i = e.target.dataset.ex; if(i == null) return;
+    const x = EXAMPLES[i];
+    if(!$('#sName').value) $('#sName').value = '王小明';
+    const nm = $('#sName').value.trim() || '小明';
+    $('#sEvent').value = x.text.replaceAll('小明', nm);
+    $$('#catBox input').forEach(cb => cb.checked = x.cats.includes(cb.value));
+    picked = new Set(x.tags); renderPicked(); saveDraft();
+  });
+}
+function renderPicked(){
+  $$('#tagLib .tag').forEach(el => el.classList.toggle('on', picked.has(el.dataset.tag)));
+  $('#pickedTags').innerHTML = picked.size ? [...picked].map(t => `<span data-t="${esc(t)}">${esc(t)} ×</span>`).join('') : '<span class="hint" style="background:none;color:var(--muted)">尚未選擇</span>';
+  const hits = ALERTS.filter(a => a.tags.some(t => picked.has(t)));
+  $('#alertBox').innerHTML = hits.length ? `<div class="alert"><b>⚠️ 可能涉及通報或危機處理，請留意：</b><ul>${hits.map(a => `<li><b style="display:inline">${a.title}</b>：${a.text}</li>`).join('')}</ul><div style="margin-top:6px;font-size:12.5px">以上僅為提醒，請依學校最新流程並與輔導室、學務處確認。若已完成通報，可在「老師的處理」寫下通報時間，AI 會一併記錄。</div></div>` : '';
+}
+function getRadio(name){ const r = $(`input[name="${name}"]:checked`); return r ? r.value : ''; }
+
+/* tabs */
+$$('nav.tabs button[data-tab]').forEach(b => b.onclick = () => {
+  $$('nav.tabs button[data-tab]').forEach(x => x.classList.toggle('on', x === b));
+  ['single','batch','help'].forEach(t => $('#tab-' + t).classList.toggle('hidden', t !== b.dataset.tab));
+});
+
+/* ================= 名冊 ================= */
+function getRoster(){ return store.get('roster', []); }
+function rosterToText(){ return getRoster().map(r => `${r.seat} ${r.name}`).join('\n'); }
+function refreshRosterList(){
+  $('#rosterList').innerHTML = getRoster().map(r => `<option value="${esc(r.name)}">${r.seat} 號</option>`).join('');
+  buildSeats();
+}
+$('#rosterSave').onclick = () => {
+  const rows = $('#rosterText').value.split('\n').map(l => l.trim()).filter(Boolean).map(l => {
+    const m = l.match(/^(\d+)[\s,，、.．]+(.+)$/); return m ? {seat: +m[1], name: m[2].trim()} : null;
+  }).filter(Boolean).sort((a,b) => a.seat - b.seat);
+  store.set('roster', rows); refreshRosterList(); closeModal('rosterModal'); toast(`已儲存 ${rows.length} 位學生`);
+};
+$('#rosterClear').onclick = () => { $('#rosterText').value = ''; };
+
+/* ================= 去識別化 ================= */
+const CODES = ['甲生','乙生','丙生','丁生','戊生','己生','庚生','辛生','壬生','癸生'];
+function deidentify(text, names){
+  // names: [{real, code}]，長的名字先替換
+  let out = String(text || '');
+  const list = names.filter(n => n.real && n.real.length >= 1).sort((a,b) => b.real.length - a.real.length);
+  for(const n of list){
+    out = out.split(n.real).join(n.code);
+    // 名字（去姓）也替換，如「王小明」→「小明」
+    if(n.real.length === 3){ out = out.split(n.real.slice(1)).join(n.code); }
+  }
+  out = out.replace(/09\d{2}[-\s]?\d{3}[-\s]?\d{3}/g, '［電話已遮蔽］')
+           .replace(/0\d{1,2}[-\s]?\d{6,8}/g, '［電話已遮蔽］')
+           .replace(/[A-Z][12]\d{8}/gi, '［身分證已遮蔽］');
+  return out;
+}
+function buildNameMap(student, others){
+  const map = [];
+  if(student) map.push({real: student, code: '甲生'});
+  others.forEach((o, i) => { if(o && o !== student) map.push({real: o, code: CODES[i + 1] || ('相關人' + (i + 1))}); });
+  // 名冊中其他學生也一併遮蔽
+  let idx = map.length;
+  getRoster().forEach(r => { if(!map.find(m => m.real === r.name)){ map.push({real: r.name, code: '同學' + String.fromCharCode(65 + (idx++ % 26))}); } });
+  return map;
+}
+function reidentify(text, map, useReal){
+  if(!useReal) return text;
+  let out = text;
+  map.filter(m => m.code.endsWith('生')).forEach(m => { out = out.split(m.code).join(m.real); });
+  return out;
+}
+
+/* ================= 提示詞 ================= */
+function lenRule(len){ return {精簡:'每段約 80～120 字', 標準:'每段約 150～250 字', 詳細:'每段約 300～450 字'}[len] || ''; }
+function limitRule(){
+  const r = [];
+  if(+cfg.l1) r.push(`「${cfg.f1}」不得超過 ${cfg.l1} 字`);
+  if(+cfg.l2) r.push(`「${cfg.f2}」不得超過 ${cfg.l2} 字`);
+  return r.length ? '字數上限：' + r.join('；') + '。' : '';
+}
+const COMMON_RULES = (tone) => `撰寫原則：
+1. 你是台灣國民中學的資深輔導教師，熟悉三級輔導體制與青少年發展（自我認同、同儕影響、升學與會考壓力、3C 使用、情感議題）。
+2. 使用繁體中文、台灣學校公文書常用語，第三人稱客觀敘述；學生稱「甲生」，其他人依代號。
+3. 只根據提供的資料撰寫，不得捏造時間、次數、對話或處理措施；資料沒提到的不要寫。
+4. 避免標籤化與診斷性用語（如過動、憂鬱症、問題學生、壞孩子），改以具體可觀察的行為描述。
+5. 呈現學生本人的觀點與感受，以及學生自己同意或承諾的做法，用語尊重青少年的自主性。
+6. 寫出後續輔導策略、追蹤時間點或觀察重點；若涉及通報，僅在資料有提到時記錄通報情形。
+7. 語氣：${tone === '溫暖正向' ? '溫暖正向，看見學生的優勢與努力，但仍保持專業客觀。' : '客觀中性、專業簡潔。'}
+8. 純文字，不要使用 Markdown 粗體、項目符號或表情符號，可用完整段落書寫。
+語句風格（非常重要）：
+- 寫得像一位資深老師親手寫的紀錄，通順自然、口語化但正式，讀起來不能有翻譯腔或機器感。
+- 用中文自然語序：先講主語或情況，再講動作。例如寫「常須多次提醒才能完成交辦事項」，不要寫「完成交辦事項常需多次提醒」；寫「上課常常趴睡」，不要寫「上課趴睡情形頻繁」。
+- 少用「之」「其」「係」「進行」「予以」「顯示」「呈現」「針對」等生硬字詞，少用名詞化的長句與「……情形」「……部分」的堆疊。
+- 不要出現「值得注意的是」「此外」「綜上所述」「總而言之」「整體而言」等制式轉折語，也不要評論或總結自己寫的內容。
+- 句子長短適中，一句只講一件事。
+- 不要加任何前言、說明、註記或「本紀錄由 AI 產生」「僅供參考」之類的文字。`;
+
+function collectSingle(){
+  const student = $('#sName').value.trim();
+  const others = $('#sOthers').value.split(/[,，、]/).map(s => s.trim()).filter(Boolean);
+  const cats = $$('#catBox input:checked').map(cb => CATS.find(c => c.id === cb.value).name);
+  return {
+    student, others, cats, tags: [...picked],
+    grade: $('#sGrade').value, date: $('#sDate').value, role: $('#sRole').value,
+    target: getRadio('tgt'), method: $('#sMethod').value, place: $('#sPlace').value.trim(), tier: $('#sTier').value,
+    event: $('#sEvent').value.trim(), action: $('#sAction').value.trim(), resp: $('#sResp').value.trim(),
+    len: getRadio('len'), tone: getRadio('tone'), useReal: getRadio('nm') === 'real'
+  };
+}
+function tgtLabel(t, nm){
+  if(t === '聯繫家長') return nm + '家長';
+  if(t === '學生與家長') return nm + '與' + nm + '家長';
+  return t;
+}
+function buildSinglePrompt(d){
+  const map = buildNameMap(d.student, d.others);
+  const D = t => deidentify(t, map);
+  const contactHint = d.target === '學生個別晤談'
+    ? `由於本次只與學生晤談，「${cfg.f2}」請寫與學生晤談的聯繫情形（時間、方式、地點、晤談重點），以及是否需要後續聯繫家長或其他師長的建議。`
+    : `「${cfg.f2}」請寫與${tgtLabel(d.target, '甲生')}的聯繫情形：聯繫方式、溝通重點、對方的回應與雙方共識。提到家長時寫成「甲生家長」。`;
+  const prompt = `請將以下國中輔導情形整理成正式的學生輔導紀錄。
+
+【基本資料】
+學生：甲生（${d.grade}）
+日期：${d.date || '未填'}
+紀錄者身分：${d.role}
+訪談對象：${tgtLabel(d.target, '甲生')}
+訪談方式：${d.method}${d.place ? '\n地點：' + D(d.place) : ''}${d.tier ? '\n三級輔導層級：' + d.tier : ''}
+輔導類別：${d.cats.join('、') || '未選擇'}
+狀況標籤：${d.tags.join('、') || '無'}
+
+【事件經過】
+${D(d.event)}
+${d.action ? '\n【老師的處理與引導】\n' + D(d.action) + '\n' : ''}${d.resp ? '\n【學生的回應與後續】\n' + D(d.resp) + '\n' : ''}
+${COMMON_RULES(d.tone)}
+9. 篇幅：${lenRule(d.len)}。${limitRule()}
+10. 「${cfg.f1}」請寫：事件或狀況摘要、學生的想法感受、教師的輔導處理、學生的回應與後續輔導計畫。${contactHint}
+
+請嚴格依照以下格式輸出，不要有其他前言或結語：
+【${cfg.f1}】
+（內容）
+【${cfg.f2}】
+（內容）`;
+  return {prompt, map};
+}
+function cleanAI(x){
+  return String(x || '')
+    .replace(/\*\*/g, '').replace(/^#+\s*/gm, '')
+    .split('\n').filter(l => !/(AI|ＡＩ|人工智慧|Claude|Gemini|ChatGPT|語言模型).{0,12}(生成|產生|撰寫|協助)|由.{0,6}(AI|ＡＩ)|僅供參考|以下(是|為)(為您|您)?(整理|撰寫|改寫)|希望(這|以上).{0,10}(幫助|有用)|如需(調整|修改)/.test(l)).join('\n')
+    .replace(/\n{3,}/g, '\n\n').trim();
+}
+function parseTwo(text){
+  const t = cleanAI(text);
+  const f1 = cfg.f1, f2 = cfg.f2;
+  const re = new RegExp(`[【\\[]\\s*${escRe(f1)}\\s*[】\\]]([\\s\\S]*?)[【\\[]\\s*${escRe(f2)}\\s*[】\\]]([\\s\\S]*)`);
+  let m = t.match(re);
+  if(m) return [cleanAI(m[1]), cleanAI(m[2])];
+  // 退而求其次：任意兩個【】標題
+  const parts = t.split(/[【\[][^】\]\n]{2,15}[】\]]/).map(s => s.trim()).filter(Boolean);
+  if(parts.length >= 2) return [parts[0], parts.slice(1).join('\n\n')];
+  return [t.trim(), ''];
+}
+function escRe(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+/* ================= AI 呼叫 ================= */
+async function callAI(prompt, onText){
+  if(engine.kind === 'claude' && sampleFn){
+    const r = await sampleFn(prompt, {modelTier: 'default', cache: false, onText: onText ? (({text}) => onText(text)) : undefined});
+    return r.text;
+  }
+  if(geminiKey){
+    const model = (store.get('model', 'gemini-2.5-flash') || 'gemini-2.5-flash').trim();
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(geminiKey)}`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({contents:[{role:'user', parts:[{text: prompt}]}], generationConfig:{temperature:0.6}})
+    });
+    const j = await res.json();
+    if(!res.ok) throw {code:'gemini', message: j.error?.message || ('HTTP ' + res.status)};
+    return (j.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('');
+  }
+  throw {code:'nokey', message:'沒有可用的 AI'};
+}
+function aiError(e){
+  if(e && e.code === 'nokey') { toast('目前沒有可用的 AI，請改用「複製提示詞」貼到 Gemini／ChatGPT'); return; }
+  if(e && e.code === 'not_granted') { toast('未同意使用 AI，可改用「複製提示詞」'); return; }
+  if(e && e.code === 'rate_limited') { toast('使用太頻繁，請稍候再試'); return; }
+  toast('AI 產生失敗：' + (e && e.message ? e.message : e));
+}
+
+/* ================= 個別輔導流程 ================= */
+function updatePreview(){
+  const d = collectSingle();
+  $('#promptPreview').textContent = buildSinglePrompt(d).prompt;
+}
+$('#promptPreview').closest('details').addEventListener('toggle', updatePreview);
+
+function setOutputs(a, b, pushUndo = true){
+  if(pushUndo) undoStack.push([$('#out1').value, $('#out2').value]);
+  $('#out1').value = a; $('#out2').value = b; updateCounts();
+}
+function updateCounts(){
+  [['out1','f1Count',cfg.l1],['out2','f2Count',cfg.l2]].forEach(([o,c,l]) => {
+    const n = $('#' + o).value.replace(/\s/g,'').length;
+    const el = $('#' + c); el.textContent = n + ' 字' + (+l ? ` / ${l}` : '');
+    el.classList.toggle('over', +l > 0 && n > +l);
+  });
+}
+$('#out1').addEventListener('input', updateCounts); $('#out2').addEventListener('input', updateCounts);
+
+async function generateSingle(){
+  const d = collectSingle();
+  if(!d.event){ toast('請先填寫「事件經過」'); $('#sEvent').focus(); return; }
+  const {prompt, map} = buildSinglePrompt(d);
+  lastMap = {map, useReal: d.useReal};
+  $('#spin').classList.add('on'); $('#btnGen').disabled = true;
+  try{
+    const txt = await callAI(prompt, partial => { const [a,b] = parseTwo(partial); $('#out1').value = reidentify(a, map, d.useReal); $('#out2').value = reidentify(b, map, d.useReal); updateCounts(); });
+    const [a,b] = parseTwo(txt);
+    setOutputs(reidentify(a, map, d.useReal), reidentify(b, map, d.useReal));
+    $('#resultCard').scrollIntoView({behavior:'smooth'});
+  }catch(e){ aiError(e); }
+  finally{ $('#spin').classList.remove('on'); $('#btnGen').disabled = false; }
+}
+$('#btnGen').onclick = generateSingle;
+$('#btnRegen').onclick = generateSingle;
+$('#btnCopyPrompt').onclick = () => {
+  const d = collectSingle();
+  if(!d.event){ toast('請先填寫「事件經過」'); return; }
+  const {prompt, map} = buildSinglePrompt(d); lastMap = {map, useReal: d.useReal};
+  copyText(prompt);
+  $('#pasteBack').closest('details').open = true;
+};
+$('#btnSplit').onclick = () => {
+  const txt = $('#pasteBack').value; if(!txt.trim()) return;
+  const [a,b] = parseTwo(txt);
+  const m = lastMap || {map: buildNameMap($('#sName').value.trim(), []), useReal: getRadio('nm') === 'real'};
+  setOutputs(reidentify(a, m.map, m.useReal), reidentify(b, m.map, m.useReal));
+  toast('已拆成兩段');
+};
+$('#btnDemo').onclick = () => {
+  setOutputs(
+    '甲生最近兩週有三次沒交數學作業，上課也常常趴睡。晤談時甲生說，這陣子每天晚上都玩手機遊戲到凌晨兩點左右，因為和網友組隊，不好意思先下線；也覺得自己會考一定考不好，再努力也沒用，對學習比較沒有信心。老師先肯定甲生願意說實話，再和他一起想想睡不夠對上課和成績的影響，討論可以怎麼調整。甲生答應從這週開始，晚上十一點前把手機交給家長保管，並先把一份數學作業補交完成。之後會留意甲生上課的精神和交作業的情況，預計一週後再找他談，必要時也會和數學老師討論怎麼協助他。',
+    '今天在導師室和甲生個別晤談，了解他最近沒交作業、上課沒精神的原因。談完後打電話給甲生的母親，說明甲生最近的學習狀況和晤談時的約定。母親說最近工作比較忙，沒注意到甲生晚上在玩手機，願意配合每天晚上十一點幫忙保管手機。雙方約好一週後再互相回報甲生的作息和交作業的情形。'
+  );
+  toast('這是範例內容');
+};
+$$('.rw').forEach(b => b.onclick = async () => {
+  const a = $('#out1').value, c = $('#out2').value;
+  if(!a.trim() && !c.trim()){ toast('目前沒有內容可改寫'); return; }
+  const map = lastMap ? lastMap.map : buildNameMap($('#sName').value.trim(), $('#sOthers').value.split(/[,，、]/).map(s=>s.trim()).filter(Boolean));
+  const useReal = lastMap ? lastMap.useReal : getRadio('nm') === 'real';
+  const instr = {更溫和:'語氣更溫和、更看見學生的努力與優勢，但不失專業', 更客觀:'更客觀中性，移除主觀評價與情緒性形容，以具體行為描述', 更精簡:'精簡約三成篇幅，保留關鍵事實與後續計畫', 更完整:'在不捏造事實的前提下，讓結構更完整（狀況、學生觀點、處理、後續追蹤），補足銜接語句'}[b.dataset.rw];
+  const prompt = `以下是一份國中學生輔導紀錄，請將兩段內容改寫得「${instr}」。只能使用原文中的事實，不得新增情節。學生代號維持不變。句子要像老師親手寫的，通順自然、中文語序正確，避免「之、其、進行、予以、顯示」等生硬字詞與翻譯腔，不要加任何前言或註記。${limitRule()}純文字，不要 Markdown。
+
+【${cfg.f1}】
+${deidentify(a, map)}
+【${cfg.f2}】
+${deidentify(c, map)}
+
+請嚴格依照以下格式輸出：
+【${cfg.f1}】
+（內容）
+【${cfg.f2}】
+（內容）`;
+  $('#spin').classList.add('on');
+  try{
+    const txt = await callAI(prompt);
+    const [x,y] = parseTwo(txt);
+    setOutputs(reidentify(x, map, useReal), reidentify(y, map, useReal));
+  }catch(e){ aiError(e); } finally{ $('#spin').classList.remove('on'); }
+});
+$('#btnUndo').onclick = () => { const p = undoStack.pop(); if(p){ setOutputs(p[0], p[1], false); } else toast('沒有可以復原的內容'); };
+function copyField(id){ copyText($('#' + id).value); }
+function copyAll(){ copyText(`【${cfg.f1}】\n${$('#out1').value}\n\n【${cfg.f2}】\n${$('#out2').value}`); }
+
+/* ================= 紀錄本 ================= */
+function getBook(){ return store.get('book', []); }
+function setBook(b){ store.set('book', b); }
+function addRecord(r){ const b = getBook(); b.push(Object.assign({id: Date.now() + Math.random().toString(36).slice(2,6)}, r)); setBook(b); }
+$('#btnSave').onclick = () => {
+  const d = collectSingle();
+  if(!$('#out1').value.trim()){ toast('還沒有紀錄內容'); return; }
+  addRecord({date: d.date, student: d.student || '（未填）', grade: d.grade, target: tgtLabel(d.target, d.student || '學生'), method: d.method, tier: d.tier, role: d.role,
+    cats: d.cats, tags: d.tags, f1: $('#out1').value, f2: $('#out2').value});
+  toast('已存入紀錄本');
+};
+function filteredBook(){
+  const s = $('#bkStu').value, f = $('#bkFrom').value, t = $('#bkTo').value;
+  return getBook().filter(r => (!s || r.student === s) && (!f || r.date >= f) && (!t || r.date <= t)).sort((a,b) => (b.date||'').localeCompare(a.date||''));
+}
+function renderBook(){
+  const stus = [...new Set(getBook().map(r => r.student))].sort();
+  const cur = $('#bkStu').value;
+  $('#bkStu').innerHTML = '<option value="">全部學生</option>' + stus.map(s => `<option ${s===cur?'selected':''}>${esc(s)}</option>`).join('');
+  const rows = filteredBook();
+  $('#bkList').innerHTML = rows.length ? `<table><tr><th style="width:92px">日期</th><th style="width:90px">學生</th><th>類別／內容</th><th style="width:70px"></th></tr>${rows.map(r => `
+    <tr><td>${esc(r.date)}</td><td>${esc(r.student)}<div class="hint">${esc(r.grade||'')}</div></td>
+    <td><div class="hint">${esc((r.cats||[]).join('、'))}${r.tags&&r.tags.length?' · '+esc(r.tags.join('、')):''}${r.tier?' · '+esc(r.tier.slice(0,5)):''}</div>
+    <details><summary style="cursor:pointer">${esc((r.f1||'').slice(0,46))}…</summary><p style="white-space:pre-wrap;margin:6px 0"><b>${esc(cfg.f1)}</b>\n${esc(r.f1)}</p><p style="white-space:pre-wrap;margin:6px 0"><b>${esc(cfg.f2)}</b>\n${esc(r.f2)}</p>
+    <button class="sm" data-copy="${r.id}">複製</button></details></td>
+    <td><button class="sm" data-del="${r.id}" style="color:var(--warn)">刪除</button></td></tr>`).join('')}</table>` : '<p class="hint">目前沒有紀錄。</p>';
+  renderStats(rows);
+}
+$('#bkList').addEventListener('click', async e => {
+  const del = e.target.dataset.del, cp = e.target.dataset.copy;
+  if(del){ if(await askConfirm('確定刪除這筆紀錄？')){ setBook(getBook().filter(r => r.id !== del)); renderBook(); } }
+  if(cp){ const r = getBook().find(x => x.id === cp); if(r) copyText(`【${cfg.f1}】\n${r.f1}\n\n【${cfg.f2}】\n${r.f2}`); }
+});
+['#bkStu','#bkFrom','#bkTo'].forEach(s => $(s).addEventListener('change', renderBook));
+$$('[data-bk]').forEach(b => b.onclick = () => {
+  $$('[data-bk]').forEach(x => x.classList.toggle('on', x === b));
+  $('#bkList').classList.toggle('hidden', b.dataset.bk !== 'list');
+  $('#bkStat').classList.toggle('hidden', b.dataset.bk !== 'stat');
+});
+function countBy(rows, fn){ const m = {}; rows.forEach(r => [].concat(fn(r)).filter(Boolean).forEach(k => m[k] = (m[k]||0) + 1)); return Object.entries(m).sort((a,b) => b[1]-a[1]); }
+function barTable(title, arr){
+  if(!arr.length) return '';
+  const max = arr[0][1];
+  return `<h3 style="font-size:14px;margin:14px 0 6px">${title}</h3><table>${arr.map(([k,v]) => `<tr><td style="width:150px">${esc(k)}</td><td><div class="bar" style="width:${Math.max(3, v/max*100)}%"></div></td><td style="width:40px;text-align:right">${v}</td></tr>`).join('')}</table>`;
+}
+function renderStats(rows){
+  const stu = new Set(rows.map(r => r.student)).size;
+  const risk = rows.filter(r => (r.tags||[]).some(t => RISK_TAGS.has(t))).length;
+  const parent = rows.filter(r => /家長/.test(r.target||'')).length;
+  $('#bkStat').innerHTML = `<div class="stat-grid">
+    <div class="stat"><b>${rows.length}</b><span>輔導紀錄筆數</span></div>
+    <div class="stat"><b>${stu}</b><span>輔導學生人數</span></div>
+    <div class="stat"><b>${parent}</b><span>親師聯繫次數</span></div>
+    <div class="stat"><b>${risk}</b><span>含需留意標籤</span></div></div>
+    ${barTable('輔導類別', countBy(rows, r => r.cats))}
+    ${barTable('訪談方式', countBy(rows, r => r.method))}
+    ${barTable('三級輔導層級', countBy(rows, r => r.tier ? r.tier.split('（')[0] : ''))}
+    ${barTable('每月筆數', countBy(rows, r => (r.date||'').slice(0,7)).sort((a,b) => a[0].localeCompare(b[0])))}
+    ${barTable('常見狀況標籤（前 10）', countBy(rows, r => r.tags).slice(0,10))}
+    <button class="sm" style="margin-top:12px" id="copyStat">複製統計摘要（不含學生姓名）</button>`;
+  $('#copyStat').onclick = () => {
+    const c = countBy(rows, r => r.cats).map(([k,v]) => `${k} ${v} 筆`).join('、');
+    const m = countBy(rows, r => r.method).map(([k,v]) => `${k} ${v} 次`).join('、');
+    copyText(`輔導紀錄統計${$('#bkFrom').value||$('#bkTo').value?`（${$('#bkFrom').value||'起'}～${$('#bkTo').value||'今'}）`:''}\n共 ${rows.length} 筆，輔導學生 ${stu} 人，親師聯繫 ${parent} 次。\n輔導類別：${c||'無'}\n訪談方式：${m||'無'}`);
+  };
+}
+function csvCell(s){ s = String(s ?? ''); return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s; }
+async function offerFile(filename, data, label){
+  if(downloads){
+    try{ await downloads.save({filename, data}); return; }catch(e){ if(e && e.code === 'declined') return; }
+  }
+  // 自架網站：一般下載
+  try{
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([data], {type:'text/plain;charset=utf-8'})); a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    if(window.claude){ copyText(data); toast(label + '已複製到剪貼簿'); }
+  }catch(e){ copyText(data); }
+}
+$('#bkCsv').onclick = () => {
+  const rows = filteredBook();
+  const head = ['日期','學生','年級','紀錄者','訪談對象','訪談方式','三級層級','輔導類別','狀況標籤', cfg.f1, cfg.f2];
+  const csv = '﻿' + [head, ...rows.map(r => [r.date, r.student, r.grade, r.role, r.target, r.method, r.tier, (r.cats||[]).join('、'), (r.tags||[]).join('、'), r.f1, r.f2])].map(r => r.map(csvCell).join(',')).join('\r\n');
+  offerFile(`輔導紀錄_${today()}.csv`, csv, 'CSV ');
+};
+$('#bkBackup').onclick = () => offerFile(`輔導紀錄備份_${today()}.json`, JSON.stringify({app:'jh-counseling', v:1, book:getBook(), roster:getRoster(), cfg}, null, 1), '備份資料');
+$('#bkRestore').onchange = async e => {
+  const f = e.target.files[0]; if(!f) return;
+  try{
+    const j = JSON.parse(await f.text());
+    if(!Array.isArray(j.book)) throw 0;
+    const ids = new Set(getBook().map(r => r.id));
+    setBook(getBook().concat(j.book.filter(r => !ids.has(r.id))));
+    if(j.roster && j.roster.length && !getRoster().length) store.set('roster', j.roster);
+    refreshRosterList(); renderBook(); toast(`已還原 ${j.book.length} 筆（重複的會略過）`);
+  }catch(_){ toast('檔案格式不正確'); }
+  e.target.value = '';
+};
+$('#bkClearAll').onclick = async () => { if(await askConfirm('確定清除紀錄本的所有紀錄？建議先備份。')){ setBook([]); renderBook(); } };
+
+/* ================= 批次補登 ================= */
+let batch = store.get('batch', {items:{}, cur:null, results:{}});
+function saveBatch(){ store.set('batch', batch); }
+function seatName(seat){ const r = getRoster().find(x => x.seat === +seat); return r ? r.name : ''; }
+const isFilled = it => !!(it && ((it.sit && it.sit.length) || (it.act && it.act.length) || (it.note && it.note.trim())));
+const filledSeats = () => Object.keys(batch.items).filter(s => isFilled(batch.items[s])).sort((a,b) => a-b);
+function allSeats(){ const roster = getRoster(); return roster.length ? roster.map(r => String(r.seat)) : Array.from({length: 30}, (_, i) => String(i + 1)); }
+function pruneEmpty(except){ Object.keys(batch.items).forEach(s => { if(s !== String(except) && !isFilled(batch.items[s])) delete batch.items[s]; }); }
+function buildSeats(){
+  $('#seatGrid').innerHTML = allSeats().map(s => {
+    const cls = batch.results[s] ? 'gen' : isFilled(batch.items[s]) ? 'done' : '';
+    return `<div class="seat ${cls} ${batch.cur == s ? 'cur' : ''}" data-seat="${s}">${s} 號<small>${esc(seatName(s)) || '&nbsp;'}</small></div>`;
+  }).join('');
+}
+function selectSeat(s){
+  s = String(s);
+  pruneEmpty(s);
+  if(!batch.items[s]) batch.items[s] = {sit:[], act:[], note:''};
+  batch.cur = s; saveBatch(); buildSeats(); openBatchEditor();
+}
+$('#seatGrid').addEventListener('click', e => {
+  const el = e.target.closest('.seat'); if(!el) return;
+  selectSeat(el.dataset.seat);
+});
+function tagGroups(groups, key, it){
+  return groups.map(gr => `<div class="bsub">${gr.g}</div><div class="tags">${gr.items.map(([t, sub]) =>
+    `<span class="tag ${it[key].includes(t)?'on':''}" data-k="${key}" data-t="${esc(t)}">${esc(t)}${sub ? `<small>${esc(sub)}</small>` : ''}</span>`).join('')}</div>`).join('');
+}
+function openBatchEditor(){
+  const s = batch.cur, it = batch.items[s]; if(!it){ $('#bEditor').classList.add('hidden'); return; }
+  $('#bEditor').classList.remove('hidden');
+  $('#bEditTitle').innerHTML = `編輯中：${s} 號 ${esc(seatName(s))} <span class="bcount">（已完成 ${filledSeats().length} / 10 位）</span><div class="bmeta"><span>訪談對象：<b>${esc(tgtFor(s, true))}</b></span><span>訪談方式：<b>${esc($('#bMethod').value)}</b></span></div>`;
+  const nGood = it.sit.filter(t => B_GOOD_SET.has(t)).length, nBad = it.sit.length - nGood;
+  $('#bTags').innerHTML = `
+    <div class="bgroup good"><div class="bhead"><b>🌟 優良表現</b><span class="bcount">${nGood ? '已選 ' + nGood + ' 項' : ''}</span></div>${tagGroups(B_GOOD, 'sit', it)}</div>
+    <div class="bgroup bad"><div class="bhead"><b>🔧 待改進表現</b><span class="bcount">${nBad ? '已選 ' + nBad + ' 項' : ''}</span></div>${tagGroups(B_BAD, 'sit', it)}</div>
+    <div class="bgroup act"><div class="bhead"><b>🧑‍🏫 教師處置</b><span class="bcount">${it.act.length ? '已選 ' + it.act.length + ' 項' : ''}</span></div>${tagGroups(B_ACT, 'act', it)}</div>`;
+  $('#bNote').value = it.note || '';
+}
+function canFill(){ return isFilled(batch.items[batch.cur]) || filledSeats().length < 10; }
+$('#bTags').addEventListener('click', e => {
+  const el = e.target.closest('.tag'); if(!el) return;
+  const t = el.dataset.t, arr = batch.items[batch.cur][el.dataset.k];
+  const i = arr.indexOf(t);
+  if(i < 0 && !canFill()){ toast('一次最多 10 位，請先產生這一批'); return; }
+  i >= 0 ? arr.splice(i,1) : arr.push(t);
+  saveBatch(); openBatchEditor(); buildSeats();
+});
+$('#bNote').addEventListener('input', () => {
+  const it = batch.items[batch.cur]; if(!it) return;
+  if(!isFilled(it) && !canFill()){ $('#bNote').value = ''; toast('一次最多 10 位，請先產生這一批'); return; }
+  const was = isFilled(it); it.note = $('#bNote').value; saveBatch(); if(was !== isFilled(it)) buildSeats();
+});
+$('#bNext').onclick = () => {
+  const cur = batch.cur, filled = isFilled(batch.items[cur]);
+  if(!filled) toast('這位沒有填寫，不列入');
+  const list = allSeats(), idx = list.indexOf(String(cur));
+  const next = list.slice(idx + 1).find(s => !batch.results[s]);
+  if(next && filledSeats().length < 10){ selectSeat(next); if(filled) toast(`${cur} 號已完成，接著填 ${next} 號`); }
+  else { pruneEmpty(); batch.cur = null; saveBatch(); buildSeats(); $('#bEditor').classList.add('hidden'); if(filled) toast(`${cur} 號已完成`); }
+};
+$('#bRemove').onclick = () => { delete batch.items[batch.cur]; delete batch.results[batch.cur]; batch.cur = null; saveBatch(); buildSeats(); $('#bEditor').classList.add('hidden'); renderBatchResults(); };
+// 訪談對象：聯繫家長時自動帶入「學生姓名＋家長」
+function tgtFor(seat, display){
+  const v = $('#bTarget').value;
+  const nm = display ? (seatName(seat) || (seat + '號')) : '該生';
+  if(v === '家長') return nm + '家長';
+  if(v === '學生與家長') return nm + '與' + nm + '家長';
+  return nm;
+}
+function updateTargetHint(){
+  const v = $('#bTarget').value, s = batch.cur || filledSeats()[0];
+  $('#bTargetHint').textContent = v === '學生' ? '' : `會自動帶入學生姓名，例如「${tgtFor(s || 1, true)}」`;
+  if(batch.cur) openBatchEditor();
+}
+$('#bTarget').addEventListener('change', updateTargetHint);
+$('#bMethod').addEventListener('change', () => { if(batch.cur) openBatchEditor(); });
+const DATE_RE = /(\d{2,4}\s*[\/.\-年]\s*)?\d{1,2}\s*[\/.\-月]\s*\d{1,2}\s*[日號]?|[上這本下]?(週|周|星期|禮拜)[一二三四五六日天]|(昨|今|前)天|[上這本下]週|上個月/g;
+function datesIn(t){ return [...new Set((String(t || '').match(DATE_RE) || []).map(x => x.trim()))]; }
+function buildBatchPrompt(){
+  const seats = filledSeats();
+  const roster = getRoster().map((r,i) => ({real: r.name, code: r.seat + '號'}));
+  const lines = seats.map(s => { const it = batch.items[s]; const good = it.sit.filter(t => B_GOOD_SET.has(t)).map(bLabel), bad = it.sit.filter(t => !B_GOOD_SET.has(t)).map(bLabel);
+    return `【座號 ${s}】優良表現：${good.join('、') || '無'}；待改進表現：${bad.join('、') || '無'}；教師處置：${it.act.map(bLabel).join('、') || '一般關懷'}；訪談對象：${tgtFor(s)}${it.note && it.note.trim() ? '\n　必要提及：' + deidentify(it.note.trim(), roster) : ''}`; });
+  const tgt = $('#bTarget').value;
+  return {seats, prompt: `請為以下 ${seats.length} 位${$('#bGrade').value}學生，各撰寫一份國中學生輔導紀錄。學生以座號稱呼，紀錄內文稱「該生」。
+紀錄日期：${$('#bDate').value || '未填'}；訪談方式：${$('#bMethod').value}；訪談對象見各生資料。
+
+${lines.join('\n')}
+
+${COMMON_RULES($('#bTone').value).replace('學生稱「甲生」，其他人依代號','學生稱「該生」')}
+9. 篇幅：${lenRule($('#bLen').value)}。${limitRule()}
+10. 每位學生的內容要依其狀況寫出差異，不要套用相同句子。先肯定優良表現，再具體描述待改進之處與輔導作為；只有優良表現者寫成正向肯定的紀錄。「${cfg.f2}」寫${tgt === '學生' ? '訪談的方式與重點，以及是否需要聯繫家長' : '與訪談對象（如「該生家長」）聯繫的方式、溝通重點與對方的回應，訪談對象請照資料寫成「該生家長」'}。
+11. 「懶惰、講不聽、說話惹人厭」這類較主觀的勾選詞，請轉寫為具體、中性的行為描述（例如「常須多次提醒才能完成交辦事項」「說話有時沒有顧及別人的感受」），不要直接寫出貶抑字眼。
+12. 教師處置只寫有勾選或必要提及寫到的項目；勾選「已通報學務處」等通報項目時須如實記錄。
+13. 「必要提及」的每一件事都一定要寫進「${cfg.f1}」，不可省略。其中出現的日期與時間（例如 11/18、11月18日、上週三、第三節）必須一字不改、照原樣寫出，不可換算成其他格式或改成「近日」「日前」。
+14. 描述學生行為時，用中性、具體的詞彙詳細寫出：在什麼時間與情境、做了什麼、次數多少、老師如何回應、學生後來的反應；只寫看得到的行為，不加主觀評價或推測動機。
+
+請嚴格依照以下格式，依序輸出每位學生，不要有其他前言或結語：
+【座號 N】
+【${cfg.f1}】
+（內容）
+【${cfg.f2}】
+（內容）`};
+}
+function splitBatch(text){
+  const out = {};
+  const t = String(text||'').replace(/\*\*/g,'');
+  const re = /[【\[]\s*座號\s*(\d+)\s*[】\]]/g; let m, marks = [];
+  while((m = re.exec(t))) marks.push({seat: m[1], i: m.index, end: re.lastIndex});
+  marks.forEach((mk, k) => { const body = t.slice(mk.end, k + 1 < marks.length ? marks[k+1].i : t.length); out[mk.seat] = parseTwo(body); });
+  return out;
+}
+function applyBatchNames(txt, seat){
+  if($('#bName').value !== 'real') return txt;
+  const nm = seatName(seat); if(!nm) return txt;
+  return txt.replace(/該生/g, nm).replace(new RegExp(seat + '號', 'g'), nm);
+}
+function renderBatchResults(){
+  const seats = Object.keys(batch.results).sort((a,b) => a-b);
+  $('#bResBtns').classList.toggle('hidden', !seats.length);
+  $('#bResults').innerHTML = seats.map(s => { const [a,b] = batch.results[s];
+    const miss = datesIn(batch.items[s] && batch.items[s].note).filter(d => !(a + b).replace(/\s/g,'').includes(d.replace(/\s/g,'')));
+    return `<div class="bitem"><div class="t">${s} 號 ${esc(seatName(s))}<span class="hint" style="font-weight:400">訪談對象：${esc(tgtFor(s, true))}</span><span class="row"><button class="sm" data-bc="${s}">複製</button></span></div>
+    ${miss.length ? `<div class="bwarn">⚠ 必要提及的日期「${miss.map(esc).join('」「')}」沒有出現在紀錄中，請手動補上或重新產生。</div>` : ''}
+    <label class="f" style="margin-top:6px">${esc(cfg.f1)}</label><textarea data-bs="${s}" data-i="0">${esc(a)}</textarea>
+    <label class="f" style="margin-top:6px">${esc(cfg.f2)}</label><textarea data-bs="${s}" data-i="1">${esc(b)}</textarea></div>`; }).join('');
+}
+$('#bResults').addEventListener('input', e => { const s = e.target.dataset.bs; if(s){ batch.results[s][+e.target.dataset.i] = e.target.value; saveBatch(); } });
+$('#bResults').addEventListener('click', e => { const s = e.target.dataset.bc; if(s){ const [a,b] = batch.results[s]; copyText(`【${cfg.f1}】\n${a}\n\n【${cfg.f2}】\n${b}`); } });
+function ingestBatch(txt){
+  const res = splitBatch(txt); let n = 0;
+  Object.entries(res).forEach(([s, [a,b]]) => { batch.results[s] = [applyBatchNames(a, s), applyBatchNames(b, s)]; n++; });
+  saveBatch(); buildSeats(); renderBatchResults(); return n;
+}
+$('#bGen').onclick = async () => {
+  if(!filledSeats().length){ toast('請先點選座號'); return; }
+  const {seats, prompt} = buildBatchPrompt();
+  $('#bSpin').classList.add('on'); $('#bGen').disabled = true; $('#bStatus').textContent = `產生中（${seats.length} 位）…`;
+  try{ const txt = await callAI(prompt); const n = ingestBatch(txt); $('#bStatus').textContent = `已產生 ${n} / ${seats.length} 位`; }
+  catch(e){ aiError(e); $('#bStatus').textContent = '產生失敗'; }
+  finally{ $('#bSpin').classList.remove('on'); $('#bGen').disabled = false; }
+};
+$('#bCopy').onclick = () => { if(!filledSeats().length){ toast('請先點選座號'); return; } copyText(buildBatchPrompt().prompt); $('#bPaste').closest('details').open = true; };
+$('#bSplit').onclick = () => { const n = ingestBatch($('#bPaste').value); toast(n ? `已拆出 ${n} 位` : '找不到【座號 N】標記'); };
+$('#bSaveAll').onclick = () => {
+  Object.entries(batch.results).forEach(([s,[a,b]]) => addRecord({date: $('#bDate').value, student: seatName(s) || (s + '號'), grade: $('#bGrade').value, target: tgtFor(s, true), method: $('#bMethod').value, tier:'', role:'導師',
+    cats: [], tags: batch.items[s] ? batch.items[s].sit.map(bLabel) : [], f1: a, f2: b}));
+  toast(`已存入 ${Object.keys(batch.results).length} 筆`);
+};
+$('#bClear').onclick = async () => { if(await askConfirm('清空這批的選取與結果？')){ batch = {items:{}, cur:null, results:{}}; saveBatch(); buildSeats(); renderBatchResults(); $('#bEditor').classList.add('hidden'); $('#bStatus').textContent = '尚未開始'; } };
+
+/* ================= 設定 ================= */
+function applyCfgLabels(){ $('#f1Label').textContent = cfg.f1; $('#f2Label').textContent = cfg.f2; updateCounts(); }
+function loadSettingsUI(){
+  $('#cfgF1').value = cfg.f1; $('#cfgF2').value = cfg.f2; $('#cfgL1').value = cfg.l1; $('#cfgL2').value = cfg.l2;
+  $('#cfgKey').value = geminiKey; $('#cfgModel').value = store.get('model', 'gemini-2.5-flash');
+  $('#cfgRemember').checked = !!store.get('gkey', null, localStorage);
+  $('#cfgPublic').checked = !!store.get('publicMode', false, localStorage);
+  $('#claudeNote').textContent = engine.kind === 'claude' ? '目前在 Claude 中開啟，已直接使用 Claude 撰寫，不需要金鑰。' : '若把本頁放到自己的網站使用，可填入 Gemini API 金鑰（建議用個人 Google 帳號到 Google AI Studio 申請）。';
+}
+$('#cfgSave').onclick = () => {
+  cfg = {f1: $('#cfgF1').value.trim() || DEF_CFG.f1, l1: $('#cfgL1').value, f2: $('#cfgF2').value.trim() || DEF_CFG.f2, l2: $('#cfgL2').value};
+  store.set('cfg', cfg); applyCfgLabels(); renderBatchResults(); toast('已儲存紀錄格式');
+};
+$('#cfgReset').onclick = () => { cfg = Object.assign({}, DEF_CFG); store.set('cfg', cfg); loadSettingsUI(); applyCfgLabels(); toast('已恢復預設'); };
+$('#cfgKeySave').onclick = async () => {
+  const k = $('#cfgKey').value.trim(); if(!k){ toast('請輸入金鑰'); return; }
+  store.set('model', $('#cfgModel').value.trim() || 'gemini-2.5-flash');
+  const prev = engine.kind; geminiKey = k;
+  if(engine.kind !== 'claude') engine.kind = 'gemini';
+  $('#cfgKeyMsg').textContent = '測試中…';
+  try{
+    const saveKind = engine.kind; engine.kind = 'gemini'; const t = await callAI('請只回答「OK」'); engine.kind = saveKind;
+    $('#cfgKeyMsg').textContent = '✅ 可以使用';
+    if($('#cfgRemember').checked && !store.get('publicMode', false, localStorage)) store.set('gkey', k, localStorage); else { store.del('gkey', localStorage); store.set('gkey', k, sessionStorage); }
+  }catch(e){ engine.kind = prev === 'claude' ? 'claude' : 'none'; geminiKey = ''; $('#cfgKeyMsg').textContent = '❌ ' + (e.message || '無法連線（若在 Claude 中開啟，外部連線會被擋下）'); }
+  updateEngineBadge();
+};
+$('#cfgKeyClear').onclick = () => { geminiKey = ''; store.del('gkey', localStorage); store.del('gkey', sessionStorage); $('#cfgKey').value = ''; if(engine.kind === 'gemini') engine.kind = 'none'; updateEngineBadge(); toast('已清除金鑰'); };
+$('#cfgPublic').onchange = e => { store.set('publicMode', e.target.checked, localStorage); if(e.target.checked){ store.del('gkey', localStorage); toast('已開啟公用電腦模式'); } };
+function updateEngineBadge(){
+  const b = $('#engineBadge'); if(!b) return;
+  b.textContent = engine.kind === 'claude' ? 'AI：Claude' : engine.kind === 'gemini' ? 'AI：Gemini' : 'AI：未連線（可複製提示詞）';
+}
+
+/* ================= 草稿 ================= */
+const DRAFT_IDS = ['sName','sGrade','sDate','sRole','sOthers','sMethod','sPlace','sTier','sEvent','sAction','sResp'];
+function saveDraft(){
+  const d = {}; DRAFT_IDS.forEach(id => d[id] = $('#' + id).value);
+  d.cats = $$('#catBox input:checked').map(c => c.value); d.tags = [...picked]; d.tgt = getRadio('tgt');
+  store.set('draft', d);
+}
+function loadDraft(){
+  const d = store.get('draft'); if(!d) return;
+  DRAFT_IDS.forEach(id => { if(d[id] != null) $('#' + id).value = d[id]; });
+  $$('#catBox input').forEach(c => c.checked = (d.cats||[]).includes(c.value));
+  picked = new Set(d.tags || []);
+  if(d.tgt){ const r = $(`input[name="tgt"][value="${d.tgt}"]`); if(r) r.checked = true; }
+}
+DRAFT_IDS.forEach(id => $('#' + id).addEventListener('input', saveDraft));
+$$('input[name="tgt"]').forEach(r => r.addEventListener('change', saveDraft));
+
+/* ================= 語音輸入 ================= */
+let dictTarget = null, dictBase = '';
+function setupDictation(){
+  if(!dictation) return;
+  $$('.mic').forEach(b => b.classList.remove('hidden'));
+  dictation.onPartial(({text}) => { if(dictTarget) dictTarget.value = dictBase + text; });
+  dictation.onFinal(({text}) => { if(dictTarget){ dictBase = dictBase + text; dictTarget.value = dictBase; saveDraft(); } });
+  dictation.onState(({state}) => {
+    $$('.mic').forEach(b => { const live = state === 'listening' && dictTarget && b.dataset.for === dictTarget.id; b.classList.toggle('live', live); b.textContent = live ? '⏹ 停止' : (b.dataset.for === 'sEvent' ? '🎤 語音輸入' : '🎤'); });
+    if(state === 'idle') dictTarget = null;
+  });
+  $$('.mic').forEach(b => b.onclick = () => {
+    const ta = $('#' + b.dataset.for);
+    if(dictTarget === ta){ dictation.stop().catch(()=>{}); return; }
+    if(dictTarget) dictation.stop().catch(()=>{});
+    dictTarget = ta; dictBase = ta.value ? ta.value + (/[。，！？\s]$/.test(ta.value) ? '' : '，') : '';
+    dictation.start().catch(e => { dictTarget = null; if(e && e.code === 'not_granted'){ $$('.mic').forEach(x => x.classList.add('hidden')); } toast('無法啟動語音輸入'); });
+  });
+}
+
+/* ================= 啟動 ================= */
+function init(){
+  buildCats(); loadDraft(); renderPicked();
+  if(!$('#sDate').value) $('#sDate').value = today();
+  if(!$('#bDate').value) $('#bDate').value = today();
+  pruneEmpty(); batch.cur = null; saveBatch();
+  applyCfgLabels(); refreshRosterList(); renderBatchResults();
+  geminiKey = store.get('gkey', '', localStorage) || store.get('gkey', '', sessionStorage) || '';
+  if(geminiKey) engine.kind = 'gemini';
+  updateEngineBadge();
+  if(!store.get('welcomed')) openModal('welcomeModal');
+  const inClaude = !!(window.claude && window.claude.use);
+  if(!inClaude){ $('#btnPrint').classList.remove('hidden'); }
+  if(inClaude){
+    window.claude.use('sample').then(s => { if(s){ sampleFn = s; engine.kind = 'claude'; } updateEngineBadge(); }).catch(() => updateEngineBadge());
+    window.claude.use('dictation').then(d => { if(d){ dictation = d; setupDictation(); } }).catch(()=>{});
+    window.claude.use('downloads').then(d => { if(d) downloads = d; }).catch(()=>{});
+  } else {
+    setTimeout(() => { if(window.claude && window.claude.use && !sampleFn){ init2(); } }, 1500);
+  }
+}
+function init2(){
+  window.claude.use('sample').then(s => { if(s){ sampleFn = s; engine.kind = 'claude'; updateEngineBadge(); } }).catch(()=>{});
+  window.claude.use('dictation').then(d => { if(d){ dictation = d; setupDictation(); } }).catch(()=>{});
+  window.claude.use('downloads').then(d => { if(d) downloads = d; }).catch(()=>{});
+  $('#btnPrint').classList.add('hidden');
+}
+// 公用電腦模式：關閉分頁時清除（資料已存在 sessionStorage，關閉即消失）
+init();
+</script>
+</body>
+</html>
